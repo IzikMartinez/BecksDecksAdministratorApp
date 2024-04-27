@@ -3,5 +3,5 @@ abstract class Constants {
       String.fromEnvironment('SUPABASE_URL', defaultValue: '');
 
   static const String supabaseAnonKey =
-      String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+      String.fromEnvironment('SUPABASE_SERVICE_KEY', defaultValue: '');
 }

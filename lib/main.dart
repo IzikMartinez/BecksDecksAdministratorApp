@@ -1,13 +1,16 @@
+import 'package:becks_decks_admin/add_product.dart';
 import 'package:becks_decks_admin/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
       url: Constants.supabaseUrl, anonKey: Constants.supabaseAnonKey);
-
   runApp(const MyApp());
 }
+
+final supabase = Supabase.instance.client;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -20,16 +23,14 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
-  final _future = Supabase.instance.client.from('PRODUCTS').select();
+  final _future = supabase.from('PRODUCTS').select();
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +63,11 @@ class _HomePageState extends State<HomePage> {
           FloatingActionButton(
             onPressed: () {
               // Add your onPressed code here!
+              print("You pressed it alright");
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddProductDB()),
+              );
             },
             backgroundColor: Colors.green,
             child: const Icon(Icons.add),
@@ -89,5 +95,91 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+}
+
+final _formKey = GlobalKey<FormState>();
+
+class AddProduct extends StatelessWidget {
+  const AddProduct({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Enter something';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Enter something';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Enter something';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Enter something';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Enter something';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Enter something';
+                  }
+                  return null;
+                },
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(const SnackBar(content: Text("Neat!")));
+                  }
+                },
+                child: const Text("Validate"),
+              ),
+            ],
+          )),
+    ));
+  }
+}
+
+class RemoveProduct extends StatelessWidget {
+  const RemoveProduct({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
