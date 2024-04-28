@@ -44,14 +44,79 @@ class _HomePageState extends State<HomePage> {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final countries = snapshot.data!;
+          final products = snapshot.data!;
           return ListView.builder(
-            itemCount: countries.length,
+            itemCount: products.length,
             itemBuilder: ((context, index) {
-              final country = countries[index];
-              return ListTile(
-                title: Text(
-                    "PRODUCT: ${country['name']}, \n\t\t\tPRICE: \$${country['price']}"),
+              final product = products[index];
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)
+                ),
+                elevation: 5,
+                child: ListTile(
+                  leading: CircleAvatar(
+                    radius: 30,
+                      child: FittedBox(child: Text('\$${product['price']}'),),
+                  ),
+                  title: Text("PRODUCT: ${product['name']}"),
+                  trailing: Container(
+                    width: 200,
+                    child: Row(
+                      children: <Widget>[
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.edit),
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            showDialog(context: context, builder:(BuildContext) {
+                              return AlertDialog(
+                                title: const Text('Confirm Deletion'),
+                                content: const Text('Are you sure you want to delete this product from the database? No takebackies'),
+                                actions: <Widget>[
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      fixedSize: const Size.fromWidth(100),
+                                      padding: const EdgeInsets.all(10),
+                                      backgroundColor: Colors.green,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // close dialog
+                                    },
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      fixedSize: const Size.fromWidth(100),
+                                      padding: const EdgeInsets.all(10),
+                                      backgroundColor: Colors.red,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text('Yes'),
+                                    onPressed: () async {
+                                      Navigator.of(context).pop(); // close dialog
+                                      await supabase
+                                          .from('PRODUCTS')
+                                          .delete()
+                                          .match({'id': product['id']});
+                                    },
+                                  )
+                                ],
+
+                              );
+                            });
+                          },
+                          icon: const Icon(Icons.delete),
+                          color: Colors.red,
+                        )
+                      ],
+                    ),
+                  ),
+
+              )
               );
             }),
           );
