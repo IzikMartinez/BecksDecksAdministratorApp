@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import 'constants.dart';
 import 'main.dart';
@@ -23,12 +25,24 @@ class _AddProductDBState extends State<AddProductDB> {
 
   File? _selectedImage;
   Future<void> insertProduct() async {
+    var uuid = const Uuid();
+    var productId = uuid.v1();
+
     await supabase.from('PRODUCTS').insert({
+      'id': productId,
       'name': _nameController.text,
       'desc': _descController.text,
       'price': _priceController.text,
       'category': _categoryController.text
     });
+    print(productId);
+    if (_selectedImage != null) {
+      final String path = await supabase.storage.from('product_images').upload(
+            '${productId}.jpg',
+            _selectedImage!,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
+    }
   }
 
   Future _pickImageFromGallery() async {
@@ -191,61 +205,3 @@ class _AddProductDBState extends State<AddProductDB> {
                     ))));
   }
 }
-
-/*
-class MyFormState extends State<MyForm> {
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          TextFormField(
-              decoration: const InputDecoration(
-            labelText: 'ID (uuid)',
-          )),
-          TextFormField(
-              decoration: const InputDecoration(
-            labelText: 'Name (text)',
-          )),
-          TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'Price (float4)',
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          TextFormField(
-              decoration: const InputDecoration(
-            labelText: 'Desc (text)',
-          )),
-          TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'In Stock (int4)',
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          TextFormField(
-              decoration: const InputDecoration(
-            labelText: 'Category (text)',
-          )),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Processing Data')));
-                }
-              },
-              child: const Text('Submit'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-*/

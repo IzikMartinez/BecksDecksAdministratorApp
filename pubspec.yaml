@@ -41,6 +41,9 @@ dependencies:
   # The following package enables the ability to upload images to the application
   image_picker: ^0.8.6
 
+  # The following package provides the ability to generate a UUID
+  uuid: ^4.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
