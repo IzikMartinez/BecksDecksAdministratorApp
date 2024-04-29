@@ -1,16 +1,14 @@
-# becks_decks_admin
+# Beck's Decks Admin
+This is a simple application intended for mobile and desktop use that enables my client to perform simple CRUD operations on the products stocked on his web store.
 
-A new Flutter project.
+To use, you will need a supabase project to act as the backend, and will need to supply your own authentication key with appropriate RLS privileges. 
 
-## Getting Started
+## Functionality
+- Add products
+- Remove products
+- Edit products
+These operations involve adding/altering prices, descriptions, product names, and product images to an SQL table titled "PRODUCTS"
+The file management of the app expects all product images to be in a bucket titled "product_images"
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Notes on iOS
+This application is currently not tested on, or intended for use with iOS. Any functionality listed above may not work
