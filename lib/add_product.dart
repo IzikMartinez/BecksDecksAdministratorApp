@@ -144,6 +144,7 @@ class _AddProductDBState extends State<AddProductDB> {
                               });
                             }
                           },
+                          label: const Text("Category"),
                           helperText:
                               "Select what category a product belongs to. Product will be autosorted on the app",
                           width: 350,

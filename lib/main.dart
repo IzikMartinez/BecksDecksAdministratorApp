@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:becks_decks_admin/add_product.dart';
 import 'package:becks_decks_admin/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -73,12 +74,33 @@ class _HomePageState extends State<HomePage> {
   }
 
   String? _imageUrl = "";
+  File? _selectedImage;
+
+  Future _pickImageFromGallery(String productId) async {
+    final productImage =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (productImage == null) {
+      print("Failed to pick image");
+      return;
+    } else {
+      print(
+          "Attempting to call _updateImage() with ${File(productImage.path)}");
+      _updateImage(productId, productImage);
+    }
+  }
+
+  Future _updateImage(String productId, XFile? productImage) async {
+    final String path = await supabase.storage.from('product_images').update(
+          '$productId.jpg',
+          File(productImage!.path),
+          fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+        );
+  }
 
   Future<void> fetchImageUrl(String productId) async {
     final imageUrl = await supabase.storage
         .from('product_images')
         .createSignedUrl('$productId.jpg', 6);
-    print("URL from fetcher ${imageUrl}\n id: ${productId}");
     if (imageUrl.isEmpty) {
       setState(() {
         _imageUrl = "";
@@ -142,10 +164,15 @@ class _HomePageState extends State<HomePage> {
                                       title: const Text(
                                           'Edit product (saves on enter)'),
                                       children: [
-                                        Image.network(
-                                          _imageUrl.toString(),
-                                          width: 125,
-                                          height: 250,
+                                        GestureDetector(
+                                          onTap: () {
+                                            _pickImageFromGallery(productId);
+                                          },
+                                          child: Image.network(
+                                            _imageUrl.toString(),
+                                            width: 125,
+                                            height: 250,
+                                          ),
                                         ),
                                         TextFormField(
                                           initialValue: product['name'],
@@ -287,7 +314,6 @@ class _HomePageState extends State<HomePage> {
           FloatingActionButton(
             onPressed: () {
               // Add your onPressed code here!
-              print("You pressed it alright");
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const AddProductDB()),
