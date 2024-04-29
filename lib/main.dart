@@ -190,7 +190,35 @@ class _HomePageState extends State<HomePage> {
                                             await updatePrice(productId, value);
                                             if (mounted) Navigator.pop(context);
                                           },
-                                        )
+                                        ),
+                                        DropdownMenu(
+                                          onSelected: (String? value) {
+                                            if (value != null) {
+                                              updateCategory(productId, value);
+                                            }
+                                          },
+                                          label: const Text("Category"),
+                                          helperText:
+                                              "Select what category a product belongs to. Product will be autosorted on the app",
+                                          width: 350,
+                                          dropdownMenuEntries: const <DropdownMenuEntry<
+                                              String>>[
+                                            DropdownMenuEntry(
+                                                value: "magic", label: "Magic"),
+                                            DropdownMenuEntry(
+                                                value: "fab",
+                                                label: "Flesh & Blood"),
+                                            DropdownMenuEntry(
+                                                value: "yugioh",
+                                                label: "Yu-Gi-Oh"),
+                                            DropdownMenuEntry(
+                                                value: "lorcana",
+                                                label: "Lorcana"),
+                                            DropdownMenuEntry(
+                                                value: "pokemon",
+                                                label: "Pokemon"),
+                                          ],
+                                        ),
                                       ],
                                     );
                                   });

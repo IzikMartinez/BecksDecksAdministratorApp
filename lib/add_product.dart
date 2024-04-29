@@ -81,6 +81,9 @@ class _AddProductDBState extends State<AddProductDB> {
                             controller: _nameController,
                             decoration: const InputDecoration(
                                 labelText: 'Product Name'),
+                            keyboardType: TextInputType.multiline,
+                            minLines: 1,
+                            maxLines: 3,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return "Enter the name of the product";
@@ -96,6 +99,9 @@ class _AddProductDBState extends State<AddProductDB> {
                             controller: _descController,
                             decoration: const InputDecoration(
                                 labelText: "Product Description"),
+                            keyboardType: TextInputType.multiline,
+                            minLines: 1,
+                            maxLines: 5,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return "Enter a description for the product";
@@ -138,7 +144,6 @@ class _AddProductDBState extends State<AddProductDB> {
                               });
                             }
                           },
-                          label: const Text("Category"),
                           helperText:
                               "Select what category a product belongs to. Product will be autosorted on the app",
                           width: 350,
