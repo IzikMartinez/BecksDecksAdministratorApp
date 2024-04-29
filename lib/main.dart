@@ -72,12 +72,12 @@ class _HomePageState extends State<HomePage> {
     return productImage;
   }
 
-  String _imageUrl = "";
+  String? _imageUrl = "";
 
   Future<void> fetchImageUrl(String productId) async {
     final imageUrl = await supabase.storage
         .from('product_images')
-        .createSignedUrl('$productId.jpg', 60 * 60);
+        .createSignedUrl('$productId.jpg', 6);
     print("URL from fetcher ${imageUrl}\n id: ${productId}");
     if (imageUrl.isEmpty) {
       setState(() {
@@ -91,8 +91,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> deleteImage(String productId) async {
-    final Uint8List productImage = fetchImage(productId) as Uint8List;
-    if (productImage.isEmpty) return;
     final List<FileObject> imageObjects = await supabase.storage
         .from('product_images')
         .remove(['$productId.jpg']);
@@ -134,23 +132,31 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         children: <Widget>[
                           IconButton(
-                            onPressed: () {
-                              print("On Press: ${productId}");
-                              fetchImageUrl(productId);
+                            onPressed: () async {
+                              await fetchImageUrl(productId);
                               showDialog(
+                                  // ignore: use_build_context_synchronously
                                   context: context,
                                   builder: (context) {
                                     return SimpleDialog(
-                                      title: const Text('Edit a product'),
+                                      title: const Text(
+                                          'Edit product (saves on enter)'),
                                       children: [
                                         Image.network(
-                                          _imageUrl,
+                                          _imageUrl.toString(),
                                           width: 125,
                                           height: 250,
                                         ),
-                                        Text(productId),
                                         TextFormField(
                                           initialValue: product['name'],
+                                          decoration: const InputDecoration(
+                                            hintText: "Edit Name",
+                                            contentPadding:
+                                                EdgeInsets.all(10.0),
+                                          ),
+                                          keyboardType: TextInputType.multiline,
+                                          minLines: 1,
+                                          maxLines: 3,
                                           onFieldSubmitted: (value) async {
                                             await updateName(productId, value);
                                             if (mounted) Navigator.pop(context);
@@ -158,6 +164,14 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         TextFormField(
                                           initialValue: product['desc'],
+                                          decoration: const InputDecoration(
+                                            hintText: "Edit Description",
+                                            contentPadding:
+                                                EdgeInsets.all(10.0),
+                                          ),
+                                          keyboardType: TextInputType.multiline,
+                                          minLines: 1,
+                                          maxLines: 5,
                                           onFieldSubmitted: (value) async {
                                             await updateDesc(productId, value);
                                             if (mounted) Navigator.pop(context);
@@ -167,6 +181,11 @@ class _HomePageState extends State<HomePage> {
                                           keyboardType: TextInputType.number,
                                           initialValue:
                                               product['price'].toString(),
+                                          decoration: const InputDecoration(
+                                            hintText: "Edit Price",
+                                            contentPadding:
+                                                EdgeInsets.all(10.0),
+                                          ),
                                           onFieldSubmitted: (value) async {
                                             await updatePrice(productId, value);
                                             if (mounted) Navigator.pop(context);
