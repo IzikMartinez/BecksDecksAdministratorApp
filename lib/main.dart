@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:becks_decks_admin/add_product.dart';
 import 'package:becks_decks_admin/constants.dart';
 import 'package:flutter/material.dart';
@@ -34,22 +37,24 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final productStream = supabase.from('PRODUCTS').stream(primaryKey: ['id']);
 
-
-  Future<void> updateName (String productId, String updatedNote) async {
+  Future<void> updateName(String productId, String updatedNote) async {
     await supabase
         .from('PRODUCTS')
         .update({'name': updatedNote}).match({'id': productId});
   }
-  Future<void> updateDesc (String productId, String updatedNote) async {
+
+  Future<void> updateDesc(String productId, String updatedNote) async {
     await supabase
         .from('PRODUCTS')
         .update({'desc': updatedNote}).match({'id': productId});
   }
+
   Future<void> updatePrice(String productId, String updatedNote) async {
     await supabase
         .from('PRODUCTS')
         .update({'price': updatedNote}).match({'id': productId});
   }
+
   Future<void> updateCategory(String productId, String updatedNote) async {
     await supabase
         .from('PRODUCTS')
@@ -58,6 +63,39 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> deleteProduct(String productId) async {
     await supabase.from('PRODUCTS').delete().match({'id': productId});
+  }
+
+  Future<Uint8List> fetchImage(String productId) async {
+    final Uint8List productImage = await supabase.storage
+        .from('product_images')
+        .download("$productId.jpg");
+    return productImage;
+  }
+
+  String _imageUrl = "";
+
+  Future<void> fetchImageUrl(String productId) async {
+    final imageUrl = await supabase.storage
+        .from('product_images')
+        .createSignedUrl('$productId.jpg', 60 * 60);
+    print("URL from fetcher ${imageUrl}\n id: ${productId}");
+    if (imageUrl.isEmpty) {
+      setState(() {
+        _imageUrl = "";
+      });
+    } else {
+      setState(() {
+        _imageUrl = imageUrl;
+      });
+    }
+  }
+
+  Future<void> deleteImage(String productId) async {
+    final Uint8List productImage = fetchImage(productId) as Uint8List;
+    if (productImage.isEmpty) return;
+    final List<FileObject> imageObjects = await supabase.storage
+        .from('product_images')
+        .remove(['$productId.jpg']);
   }
 
   @override
@@ -84,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                   elevation: 3,
                   child: ListTile(
                     leading: CircleAvatar(
-                      radius: 30,
+                      radius: 35,
                       child: FittedBox(
                         child: Text('\$${product['price']}'),
                       ),
@@ -97,34 +135,40 @@ class _HomePageState extends State<HomePage> {
                         children: <Widget>[
                           IconButton(
                             onPressed: () {
+                              print("On Press: ${productId}");
+                              fetchImageUrl(productId);
                               showDialog(
                                   context: context,
                                   builder: (context) {
                                     return SimpleDialog(
                                       title: const Text('Edit a product'),
                                       children: [
+                                        Image.network(
+                                          _imageUrl,
+                                          width: 125,
+                                          height: 250,
+                                        ),
+                                        Text(productId),
                                         TextFormField(
                                           initialValue: product['name'],
                                           onFieldSubmitted: (value) async {
-                                            await updateName(
-                                                productId, value);
+                                            await updateName(productId, value);
                                             if (mounted) Navigator.pop(context);
                                           },
                                         ),
                                         TextFormField(
                                           initialValue: product['desc'],
                                           onFieldSubmitted: (value) async {
-                                            await updateDesc(
-                                                productId, value);
+                                            await updateDesc(productId, value);
                                             if (mounted) Navigator.pop(context);
                                           },
                                         ),
                                         TextFormField(
                                           keyboardType: TextInputType.number,
-                                          initialValue: product['price'].toString() ,
+                                          initialValue:
+                                              product['price'].toString(),
                                           onFieldSubmitted: (value) async {
-                                            await updatePrice(
-                                                productId, value);
+                                            await updatePrice(productId, value);
                                             if (mounted) Navigator.pop(context);
                                           },
                                         )
@@ -170,6 +214,7 @@ class _HomePageState extends State<HomePage> {
                                           child: const Text('Yes'),
                                           onPressed: () async {
                                             deleteProduct(productId);
+                                            deleteImage(productId);
                                             Navigator.of(context)
                                                 .pop(); // close dialog
                                           },
